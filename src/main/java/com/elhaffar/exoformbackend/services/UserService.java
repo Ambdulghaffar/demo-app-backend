@@ -1,14 +1,15 @@
 package com.elhaffar.exoformbackend.services;
 
 import com.elhaffar.exoformbackend.dto.LoginDto;
+import com.elhaffar.exoformbackend.dto.RegisterDto;
 import com.elhaffar.exoformbackend.entities.User;
 import com.elhaffar.exoformbackend.mapper.LoginMapper;
+import com.elhaffar.exoformbackend.mapper.RegisterMapper;
 import com.elhaffar.exoformbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 
@@ -20,6 +21,8 @@ public class UserService implements UserServiceImpl{
 
     @Autowired
     private LoginMapper loginMapper;
+    @Autowired
+    private RegisterMapper registerMapper;
 
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -66,11 +69,20 @@ public class UserService implements UserServiceImpl{
     }
 
     @Override
-    public LoginDto login(LoginDto loginDto) {
-        User user = userRepository.findByEmail(loginDto.getEmail());
-        if(user == null){
-            throw new RuntimeException("Utilisateur non trouvé");
+    public User register(RegisterDto registerDto) {
+        if(userRepository.findByEmail(registerDto.getEmail()).isPresent()){
+            throw new RuntimeException("Email déjà utilisé");
         }
+        User user = registerMapper.toEntity(registerDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
+    @Override
+    public LoginDto login(LoginDto loginDto) {
+        User user = userRepository.findByEmail(loginDto.getEmail())
+                .orElseThrow(()-> new RuntimeException("Utilisateur non trouvé"));
+
         if(!passwordEncoder.matches(loginDto.getPassword(),user.getPassword())){
             throw new RuntimeException("Mot de passe incorrect");
         }
@@ -78,8 +90,5 @@ public class UserService implements UserServiceImpl{
 
     }
 
-    @Override
-    public User register(User user) {
-        return null;
-    }
+
 }
