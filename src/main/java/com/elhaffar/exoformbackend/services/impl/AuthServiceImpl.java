@@ -1,9 +1,11 @@
 package com.elhaffar.exoformbackend.services.impl;
 
 import com.elhaffar.exoformbackend.dto.auth.AuthResponseDTO;
+import com.elhaffar.exoformbackend.dto.auth.GoogleAuthRequestDTO;
 import com.elhaffar.exoformbackend.dto.auth.LoginRequestDTO;
 import com.elhaffar.exoformbackend.dto.auth.RegisterRequestDTO;
 import com.elhaffar.exoformbackend.entities.User;
+import com.elhaffar.exoformbackend.common.enums.AuthProvider;
 import com.elhaffar.exoformbackend.common.enums.UserRole;
 import com.elhaffar.exoformbackend.exceptions.BusinessException;
 import com.elhaffar.exoformbackend.mapper.UserMapper;
@@ -12,6 +14,8 @@ import com.elhaffar.exoformbackend.config.JwtUtils;
 import com.elhaffar.exoformbackend.services.AuthService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -38,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
         }
         User user = userMapper.toEntityFromRegister(dto);
         user.setRole(UserRole.CLIENT);
+        user.setAuthProvider(AuthProvider.LOCAL);
         user.setPassword(passwordEncoder.encode(dto.password()));
         userRepository.save(user);
 
@@ -73,6 +78,49 @@ public class AuthServiceImpl implements AuthService {
                 user.getUsername(),
                 user.getEmail(),
                 user.getRole()
+        );
+    }
+
+    @Override
+    public AuthResponseDTO loginOrRegisterWithGoogle(GoogleAuthRequestDTO dto) {
+        Optional<User> existingUser = userRepository.findByEmail(dto.email());
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            if (user.getAuthProvider() == AuthProvider.LOCAL) {
+                throw new BusinessException("Cet email est déjà utilisé");
+            }
+
+            String accessToken = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+            String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
+            return new AuthResponseDTO(
+                    accessToken,
+                    refreshToken,
+                    jwtUtils.getExpirationTime(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getRole()
+            );
+        }
+
+        User newUser = new User();
+        newUser.setEmail(dto.email());
+        newUser.setUsername(dto.username());
+        newUser.setRole(UserRole.CLIENT);
+        newUser.setAuthProvider(AuthProvider.GOOGLE);
+        newUser.setPassword(null);
+        userRepository.save(newUser);
+
+        String accessToken = jwtUtils.generateToken(newUser.getEmail(), newUser.getRole().name());
+        String refreshToken = jwtUtils.generateRefreshToken(newUser.getEmail());
+        return new AuthResponseDTO(
+                accessToken,
+                refreshToken,
+                jwtUtils.getExpirationTime(),
+                newUser.getUsername(),
+                newUser.getEmail(),
+                newUser.getRole()
         );
     }
 

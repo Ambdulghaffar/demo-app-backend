@@ -1,5 +1,6 @@
 package com.elhaffar.exoformbackend.entities;
 
+import com.elhaffar.exoformbackend.common.enums.AuthProvider;
 import com.elhaffar.exoformbackend.common.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,12 +29,15 @@ public class User {
 
     private String address;
 
-    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "VARCHAR(10) DEFAULT 'LOCAL'")
+    private AuthProvider authProvider;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

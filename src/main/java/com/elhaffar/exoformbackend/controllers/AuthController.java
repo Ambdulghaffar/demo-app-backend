@@ -28,4 +28,9 @@ public class AuthController {
     public AuthResponseDTO refresh(@RequestBody RefreshRequestDTO request) {
         return authService.refreshToken(request.refreshToken());
     }
+
+    @PostMapping("/google")
+    public AuthResponseDTO googleAuth(@Valid @RequestBody GoogleAuthRequestDTO dto) {
+        return authService.loginOrRegisterWithGoogle(dto);
+    }
 }
