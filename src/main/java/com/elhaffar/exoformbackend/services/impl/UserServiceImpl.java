@@ -1,5 +1,6 @@
 package com.elhaffar.exoformbackend.services.impl;
 
+import com.elhaffar.exoformbackend.common.enums.AuthProvider;
 import com.elhaffar.exoformbackend.common.utils.SortUtils;
 import com.elhaffar.exoformbackend.dto.common.PageResponseDTO;
 import com.elhaffar.exoformbackend.dto.user.UserRequestDTO;
@@ -72,6 +73,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toEntity(dto);
+        user.setAuthProvider(AuthProvider.LOCAL);
         user.setPassword(passwordEncoder.encode(dto.password()));
 
         return userMapper.toResponseDTO(userRepository.save(user));

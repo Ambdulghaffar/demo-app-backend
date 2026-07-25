@@ -33,4 +33,14 @@ public class AuthController {
     public AuthResponseDTO googleAuth(@Valid @RequestBody GoogleAuthRequestDTO dto) {
         return authService.loginOrRegisterWithGoogle(dto);
     }
+
+    @PostMapping("/forgot-password")
+    public MessageResponseDTO forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO dto) {
+        return authService.forgotPassword(dto);
+    }
+
+    @PostMapping("/reset-password")
+    public MessageResponseDTO resetPassword(@Valid @RequestBody ResetPasswordRequestDTO dto) {
+        return authService.resetPassword(dto);
+    }
 }
