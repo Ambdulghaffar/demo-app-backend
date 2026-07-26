@@ -1,5 +1,6 @@
 package com.elhaffar.exoformbackend.dto.user;
 
+import com.elhaffar.exoformbackend.common.enums.AuthProvider;
 import com.elhaffar.exoformbackend.common.enums.UserRole;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ public record UserResponseDTO(
         String address,
         String imageUrl,
         UserRole role,
+        AuthProvider authProvider,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}
