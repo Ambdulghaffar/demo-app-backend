@@ -1,6 +1,9 @@
 package com.elhaffar.exoformbackend.services;
 
+import com.elhaffar.exoformbackend.dto.auth.MessageResponseDTO;
 import com.elhaffar.exoformbackend.dto.common.PageResponseDTO;
+import com.elhaffar.exoformbackend.dto.user.ChangePasswordDTO;
+import com.elhaffar.exoformbackend.dto.user.MeUpdateDTO;
 import com.elhaffar.exoformbackend.dto.user.UserRequestDTO;
 import com.elhaffar.exoformbackend.dto.user.UserResponseDTO;
 import com.elhaffar.exoformbackend.dto.user.UserStatsDTO;
@@ -13,4 +16,7 @@ public interface UserService {
     void deleteUser(Integer id);
     UserResponseDTO getUserById(Integer id);
     UserStatsDTO getUserStats();
+    UserResponseDTO getCurrentUser(String email);
+    UserResponseDTO updateCurrentUser(String email, MeUpdateDTO dto);
+    MessageResponseDTO changePassword(String email, ChangePasswordDTO dto);
 }

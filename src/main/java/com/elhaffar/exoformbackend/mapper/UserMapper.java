@@ -1,6 +1,7 @@
 package com.elhaffar.exoformbackend.mapper;
 
 import com.elhaffar.exoformbackend.dto.auth.RegisterRequestDTO;
+import com.elhaffar.exoformbackend.dto.user.MeUpdateDTO;
 import com.elhaffar.exoformbackend.dto.user.UserRequestDTO;
 import com.elhaffar.exoformbackend.dto.user.UserResponseDTO;
 import com.elhaffar.exoformbackend.dto.user.UserUpdateDTO;
@@ -46,5 +47,14 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     void updateUserFromDto(UserUpdateDTO dto, @MappingTarget User user);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "email", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "authProvider", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    void updateMeFromDto(MeUpdateDTO dto, @MappingTarget User user);
 
 }

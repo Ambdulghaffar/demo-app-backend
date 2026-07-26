@@ -2,7 +2,10 @@ package com.elhaffar.exoformbackend.services.impl;
 
 import com.elhaffar.exoformbackend.common.enums.AuthProvider;
 import com.elhaffar.exoformbackend.common.utils.SortUtils;
+import com.elhaffar.exoformbackend.dto.auth.MessageResponseDTO;
 import com.elhaffar.exoformbackend.dto.common.PageResponseDTO;
+import com.elhaffar.exoformbackend.dto.user.ChangePasswordDTO;
+import com.elhaffar.exoformbackend.dto.user.MeUpdateDTO;
 import com.elhaffar.exoformbackend.dto.user.UserRequestDTO;
 import com.elhaffar.exoformbackend.dto.user.UserResponseDTO;
 import com.elhaffar.exoformbackend.dto.user.UserStatsDTO;
@@ -123,5 +126,45 @@ public class UserServiceImpl implements UserService {
                 userRepository.countByRole(UserRole.MANAGER),
                 userRepository.countByRole(UserRole.CLIENT)
         );
+    }
+
+    @Override
+    public UserResponseDTO getCurrentUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", email));
+        return userMapper.toResponseDTO(user);
+    }
+
+    @Override
+    public UserResponseDTO updateCurrentUser(String email, MeUpdateDTO dto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", email));
+
+        if (dto.phone() != null && !dto.phone().isBlank()) {
+            userRepository.findByPhone(dto.phone())
+                    .filter(u -> !u.getId().equals(user.getId()))
+                    .ifPresent(u -> { throw new BusinessException("Ce numéro de téléphone est déjà utilisé"); });
+        }
+
+        userMapper.updateMeFromDto(dto, user);
+        return userMapper.toResponseDTO(userRepository.save(user));
+    }
+
+    @Override
+    public MessageResponseDTO changePassword(String email, ChangePasswordDTO dto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", email));
+
+        if (user.getAuthProvider() == AuthProvider.GOOGLE) {
+            throw new BusinessException("Ce compte utilise la connexion Google, aucun mot de passe à modifier ici");
+        }
+
+        if (!passwordEncoder.matches(dto.currentPassword(), user.getPassword())) {
+            throw new BusinessException("Le mot de passe actuel est incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(dto.newPassword()));
+        userRepository.save(user);
+        return new MessageResponseDTO("Mot de passe mis à jour avec succès.");
     }
 }

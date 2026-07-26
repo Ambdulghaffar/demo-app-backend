@@ -10,6 +10,7 @@ public record UserResponseDTO(
         String email,
         String phone,
         String address,
+        String imageUrl,
         UserRole role,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
