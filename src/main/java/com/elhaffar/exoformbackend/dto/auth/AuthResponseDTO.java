@@ -8,5 +8,6 @@ public record AuthResponseDTO(
         Long expiresIn,
         String username,
         String email,
-        UserRole role
+        UserRole role,
+        String imageUrl
 ) {}

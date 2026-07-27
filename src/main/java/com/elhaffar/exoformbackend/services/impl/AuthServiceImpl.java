@@ -75,7 +75,8 @@ public class AuthServiceImpl implements AuthService {
                 jwtUtils.getExpirationTime(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                null
         );
     }
 
@@ -97,7 +98,8 @@ public class AuthServiceImpl implements AuthService {
                 jwtUtils.getExpirationTime(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                user.getImageUrl()
         );
     }
 
@@ -120,7 +122,8 @@ public class AuthServiceImpl implements AuthService {
                     jwtUtils.getExpirationTime(),
                     user.getUsername(),
                     user.getEmail(),
-                    user.getRole()
+                    user.getRole(),
+                    user.getImageUrl()
             );
         }
 
@@ -140,7 +143,8 @@ public class AuthServiceImpl implements AuthService {
                 jwtUtils.getExpirationTime(),
                 newUser.getUsername(),
                 newUser.getEmail(),
-                newUser.getRole()
+                newUser.getRole(),
+                null
         );
     }
 
@@ -161,7 +165,8 @@ public class AuthServiceImpl implements AuthService {
                 jwtUtils.getExpirationTime(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                user.getImageUrl()
         );
     }
 
