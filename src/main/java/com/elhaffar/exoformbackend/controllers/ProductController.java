@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -28,10 +30,13 @@ public class ProductController {
             @RequestParam(defaultValue = "desc") String sortDir,
             @RequestParam(required = false)      String status,
             @RequestParam(required = false)      Integer categoryId,
-            @RequestParam(required = false)      String search
+            @RequestParam(required = false)      String search,
+            @RequestParam(required = false)                          BigDecimal minPrice,
+            @RequestParam(required = false)                          BigDecimal maxPrice,
+            @RequestParam(required = false, defaultValue = "false")  boolean excludeInactive
     ) {
         return ResponseEntity.ok(
-            productService.getAllProducts(page, size, sortBy, sortDir, status, categoryId, search)
+            productService.getAllProducts(page, size, sortBy, sortDir, status, categoryId, search, minPrice, maxPrice, excludeInactive)
         );
     }
 

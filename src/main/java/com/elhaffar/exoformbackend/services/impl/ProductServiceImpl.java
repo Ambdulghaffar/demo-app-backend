@@ -15,6 +15,8 @@ import com.elhaffar.exoformbackend.services.ProductService;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -33,19 +35,37 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public PageResponseDTO<ProductResponseDTO> getAllProducts(
             int page, int size, String sortBy, String sortDir,
-            String status, Integer categoryId, String search) {
+            String status, Integer categoryId, String search,
+            BigDecimal minPrice, BigDecimal maxPrice, boolean excludeInactive) {
 
         Pageable pageable = PageRequest.of(page, size, SortUtils.buildSort(sortBy, sortDir));
 
         boolean hasSearch     = search     != null && !search.isBlank();
         boolean hasStatus     = status     != null && !status.isBlank() && !status.equalsIgnoreCase("all");
         boolean hasCategoryId = categoryId != null;
+        boolean hasNewFilters = minPrice != null || maxPrice != null || excludeInactive;
 
         Page<Product> result;
 
         if (hasSearch) {
             // Recherche texte — priorité sur les autres filtres
             result = productRepository.searchProducts(search, pageable);
+        } else if (hasNewFilters) {
+            // Filtre prix et/ou exclusion INACTIVE — requête JPQL flexible
+            ProductStatus statusFilter = null;
+            if (hasStatus) {
+                try {
+                    statusFilter = ProductStatus.valueOf(status.toUpperCase());
+                } catch (IllegalArgumentException ignored) {}
+            }
+            ProductStatus excludedStatus = excludeInactive ? ProductStatus.INACTIVE : null;
+            result = productRepository.findWithFilters(
+                    statusFilter,
+                    hasCategoryId ? categoryId : null,
+                    minPrice,
+                    maxPrice,
+                    excludedStatus,
+                    pageable);
         } else if (hasStatus && hasCategoryId) {
             try {
                 ProductStatus productStatus = ProductStatus.valueOf(status.toUpperCase());
