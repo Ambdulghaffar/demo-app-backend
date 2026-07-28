@@ -44,10 +44,13 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime start = dates[0].atStartOfDay();
         LocalDateTime end   = dates[1].plusDays(1).atStartOfDay();
 
-        // Agrégat global CA + nb commandes
-        Object[] aggregate = orderRepository.findRevenueAggregate(REVENUE_STATUSES, start, end);
+// Agrégat global CA + nb commandes
+        List<Object[]> aggregateRows = orderRepository.findRevenueAggregate(REVENUE_STATUSES, start, end);
+        Object[] aggregate = aggregateRows.isEmpty()
+                ? new Object[]{ BigDecimal.ZERO, 0L }
+                : aggregateRows.get(0);
         BigDecimal totalRevenue = aggregate[0] != null ? (BigDecimal) aggregate[0] : BigDecimal.ZERO;
-        long totalOrders        = aggregate[1] != null ? (Long) aggregate[1] : 0L;
+        long totalOrders        = aggregate[1] != null ? ((Number) aggregate[1]).longValue() : 0L;
         BigDecimal averageOrderValue = totalOrders > 0
                 ? totalRevenue.divide(BigDecimal.valueOf(totalOrders), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;

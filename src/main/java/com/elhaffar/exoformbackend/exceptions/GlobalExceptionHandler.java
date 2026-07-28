@@ -43,6 +43,7 @@ public class GlobalExceptionHandler {
     // 500 — fallback pour toute erreur non gérée
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
+        ex.printStackTrace(); // TEMPORAIRE — à retirer une fois le bug trouvé
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Une erreur inattendue s'est produite");
     }
 

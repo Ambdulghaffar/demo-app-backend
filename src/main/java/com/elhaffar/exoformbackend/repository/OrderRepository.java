@@ -22,8 +22,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     // Rapport ventes — agrégat global (somme CA + nombre commandes) sur statuts CONFIRMED/SHIPPED/DELIVERED
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0), COUNT(o) FROM Order o " +
-           "WHERE o.status IN :statuses AND o.createdAt >= :start AND o.createdAt < :end")
-    Object[] findRevenueAggregate(
+            "WHERE o.status IN :statuses AND o.createdAt >= :start AND o.createdAt < :end")
+    List<Object[]> findRevenueAggregate(
             @Param("statuses") List<OrderStatus> statuses,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
