@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
@@ -47,4 +48,21 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     // Stats
     long countByStatus(ProductStatus status);
     long countByCategoryId(Integer categoryId);
+
+    // Rapport stock — valeur totale du stock (produits ACTIVE uniquement)
+    @Query("SELECT COALESCE(SUM(p.price * p.stock), 0) FROM Product p " +
+           "WHERE p.status = com.elhaffar.exoformbackend.common.enums.ProductStatus.ACTIVE")
+    BigDecimal sumActiveStockValue();
+
+    // Rapport stock — nombre de produits en stock faible (1 ≤ stock ≤ 10)
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.stock <= 10 AND p.stock > 0")
+    long countLowStockProducts();
+
+    // Rapport stock — nombre de produits en rupture totale
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.stock = 0")
+    long countOutOfStockProducts();
+
+    // Rapport stock — liste des produits en stock faible, triés par stock croissant, max 10
+    @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE p.stock <= 10 AND p.stock > 0 ORDER BY p.stock ASC")
+    List<Product> findLowStockProducts(Pageable pageable);
 }

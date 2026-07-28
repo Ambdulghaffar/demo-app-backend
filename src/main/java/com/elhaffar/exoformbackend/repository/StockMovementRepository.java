@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Repository
 public interface StockMovementRepository extends JpaRepository<StockMovement, Integer> {
 
@@ -30,4 +33,11 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, In
             @Param("type") StockMovementType type,
             Pageable pageable
     );
+
+    // Rapport stock — résumé des mouvements par type (count + quantité totale) sur la période
+    @Query("SELECT sm.type, COUNT(sm), SUM(sm.quantity) FROM StockMovement sm " +
+           "WHERE sm.createdAt >= :start AND sm.createdAt < :end GROUP BY sm.type")
+    List<Object[]> findMovementSummaryByType(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
 }
