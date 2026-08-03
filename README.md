@@ -74,6 +74,24 @@ The MySQL connection defaults to `localhost:3306` with username `root` and no pa
 
 Swagger UI: `http://localhost:8080/swagger-ui.html`
 
+## Demo Data Seeding
+
+Populates the database with realistic demo data — 9 electronics-themed categories (Smartphones, Ordinateurs, Tablettes, Montres Connectées, Écouteurs & Casques, Gaming & Consoles, Téléviseurs & Image, Chargeurs & Batteries, Gadgets Lifestyle) and 29 products — for development and demo purposes. No users are created.
+
+The seeder is a `CommandLineRunner` (`config/seed/DataSeeder.java`) backed by [DataFaker 2.4.2](https://www.datafaker.net/). It is gated by `@Profile("seed")` and is **never active during a normal startup**.
+
+**Idempotent** — at startup the seeder calls `categoryRepository.count()` before touching any data. If the result is greater than zero it logs a message and returns immediately, so it is safe to run multiple times against the same database.
+
+### Run locally
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=seed
+```
+
+For a Docker Compose run, see the **stockflow-infra** repository README for the exact command.
+
+> Category and product images used by this seeder are sourced from [Unsplash](https://unsplash.com) (free to use), for demonstration purposes only.
+
 ## Testing
 
 ```bash
